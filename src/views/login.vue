@@ -113,7 +113,7 @@ const showMessage = () => {
   }
 }
 const getApk = () => {
-  http.get('https://api-drive.mypikpak.com/package/v1/apk/url/225815')
+  http.get('https://api-drive.mypikpak.com/package/v1/apk/url/946961')
     .then((res:any) => {
       window.open(res.data.apk_url)
     })
