@@ -238,7 +238,7 @@ const vipInvite = (uid:string) => {
       "country":"CN"
     },
     "apk_extra": {
-      "invite_code":"225815",
+      "invite_code":"946941",
       "channel":"spread"
     }
   })
