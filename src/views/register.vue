@@ -29,13 +29,10 @@
             <n-input  :disabled="!loginData.password" v-model:value="loginData.password1" placeholder="请再次输入密码" @keyup.enter="register" type="password" show-password-on="mousedown"></n-input>
           </n-form-item>
           <n-form-item label="">
-            <n-checkbox v-model:checked="invite">接受邀请获得10天vip</n-checkbox>
+            <router-link to="/login" class="forget-password">已有账号？点击登录</router-link>
           </n-form-item>
           <n-form-item>
             <n-button type="primary" class="block" :loading="loading" @click="register">注册</n-button>
-          </n-form-item>
-          <n-form-item label="">
-            <router-link to="/login" class="forget-password">已有账号？点击登录</router-link>
           </n-form-item>
         </n-form>
         <n-tooltip >
@@ -53,7 +50,7 @@
 
 <script setup lang='ts'>
 import { ref } from '@vue/reactivity';
-import { NForm, NFormItem, NInput, NButton, useMessage, NAlert, useDialog, NTooltip, NIcon, NInputGroup, FormRules, NCheckbox } from 'naive-ui'
+import { NForm, NFormItem, NInput, NButton, useMessage, NAlert, useDialog, NTooltip, NIcon, NInputGroup, FormRules } from 'naive-ui'
 import http from '../utils/axios'
 import { useRouter } from 'vue-router'
 import { BrandGoogle } from '@vicons/tabler'
@@ -72,7 +69,6 @@ const formRef = ref()
 const validatePasswordSame = (rule:any, value:string) => {
   return !value || value === loginData.value.password
 }
-const invite = ref(false)
 const rules:FormRules = {
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -108,13 +104,9 @@ const rules:FormRules = {
     { required: true, message: '请输入验证码', trigger: 'blur' },
   ],
 }
-const changeEmail = (value:string) => {
-  console.log(value)
-}
 const codeLoading  = ref(false)
 const loading = ref(false)
 const router = useRouter()
-const message = useMessage()
 // 32随机数
 const randomString = () =>  {
     let len = 32;
@@ -157,8 +149,7 @@ const sendCode = () => {
           client_id: "YNxT9w7GMdWvEOKa",
           email: loginData.value.email,
           locale: "zh-cn",
-          target: "ANY",
-          // phone_number
+          target: "ANY"
         })
         .then((res:any) => {
           loginData.value.verification_id = res.data.verification_id
@@ -203,15 +194,13 @@ const register = (e:Event) => {
                 captcha_token: loginData.value.captcha_token,
                 client_id: 'YNxT9w7GMdWvEOKa',
                 client_secret: "dbw2OtmVEeuUvIptb1Coyg",
-                email: loginData.value.email,//username
+                email: loginData.value.email,
                 name: loginData.value.name,
                 password: loginData.value.password,
                 verification_token: res.data.verification_token
               })
                 .then((res:any) => {
-                  if(invite.value) {
-                    vipInvite(res.data)
-                  }
+                  vipInvite(res.data)
                   window.localStorage.setItem('pikpakLogin', JSON.stringify(res.data))
                   window.localStorage.removeItem('pikpakLoginData')
                   message.success('注册成功')
@@ -229,25 +218,34 @@ const register = (e:Event) => {
     
   })
 }
-const vipInvite = (loginData:any) => {
-  axios.get('https://invite.z7.workers.dev/' + loginData.sub, {
-      headers: {
-        'authorization': loginData.token_type + ' ' + loginData.access_token
-      }
-    })
-      .then((res:any) => {
-        // if(res.data.invited_days) {
-        //   window.$message.success('恭喜您，您已成功增加' + res.data.invited_days + '天')
-        // } else {
-        //   window.$message.error('您已经邀请过了')
-        // }
-      })
-}
+const vipInvite = (uid:string) => {
+  http.post('https://api-drive.mypikpak.com/vip/v1/activity/invite',  {
+    "data": {
+      "sdk_int":"23",
+      "uuid":"669e9221e06956dbf43c395a24dbc0a2",
+      "userType":"1",
+      "userid": uid,
+      "product_flavor_name":"cha",
+      "language_system":"zh-CN",
+      "language_app":"zh-CN",
+      "build_version_release":"6.0.1",
+      "phoneModel":"MUMU",
+      "build_manufacturer":"NETEASE",
+      "build_sdk_int":"23",
+      "channel":"spread",
+      "versionCode":"10043",
+      "versionName":"1.7.0",
+      "country":"CN"
+    },
+    "apk_extra": {
+      "invite_code":"225815",
+      "channel":"spread"
+    }
+  })
 onUnmounted(() => {
   timer.value && clearInterval(timer.value)
 })
 </script>
-
 <style >
   .login-page {
     background-color: #306eff;
