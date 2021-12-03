@@ -25,7 +25,7 @@
           <n-form-item label="">
             <a target="_blank" href="https://i.mypikpak.com/v1/file/center/account/v1/password/?type=forget_password&locale=zh-cn" class="forget-password">忘记密码</a>
             <router-link to="/register" class="register">注册</router-link>
-            <a href="javascript" @click="getApk">下载客户端</a>
+            <a href="javascript:;" @click="getApk">去下载注册</a>
           </n-form-item>
         </n-form>
         <div class="login-other">
@@ -113,7 +113,7 @@ const showMessage = () => {
   }
 }
 const getApk = () => {
-  http.get('https://api-drive.mypikpak.com/package/v1/apk/url/946961')
+  http.get('https://api-drive.mypikpak.com/package/v1/apk/url/225815')
     .then((res:any) => {
       window.open(res.data.apk_url)
     })
