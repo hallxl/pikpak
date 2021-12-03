@@ -10,6 +10,11 @@
       </div>
       <div class="login-box">
         <n-form label-align="left" style="padding-top: 30px;" :model="loginData" :rules="rules" ref="formRef" label-placement="left" label-width="0" class="login-form">
+          <n-form-item>
+            <n-alert type="error" :show-icon="false">
+              注册成功没有3天免费会员，请确定注册!!!!
+            </n-alert>
+          </n-form-item>
           <n-form-item path="email">
             <n-input v-model:value="loginData.email" placeholder="请输入邮箱"></n-input>
           </n-form-item>
@@ -50,12 +55,11 @@
 
 <script setup lang='ts'>
 import { ref } from '@vue/reactivity';
-import { NForm, NFormItem, NInput, NButton, useMessage, NAlert, useDialog, NTooltip, NIcon, NInputGroup, FormRules } from 'naive-ui'
+import { NForm, NFormItem, NInput, NButton, useMessage, NAlert, useDialog, NTooltip, NIcon, NInputGroup, FormRules, FormValidationError } from 'naive-ui'
 import http from '../utils/axios'
 import { useRouter } from 'vue-router'
 import { BrandGoogle } from '@vicons/tabler'
-import {  onUnmounted } from '@vue/runtime-core'
-import axios from 'axios';
+import { onUnmounted } from '@vue/runtime-core';
 const loginData = ref({
   email: '',
   password: '',
@@ -107,26 +111,20 @@ const rules:FormRules = {
 const codeLoading  = ref(false)
 const loading = ref(false)
 const router = useRouter()
-// 32随机数
-const randomString = () =>  {
-    let len = 32;
-    let chars ='abcdefhijkmnprstwxyz2345678';
-    let maxPos = chars.length;
-    let character = '';
-    for (let i = 0; i < len; i++) {
-        character += chars.charAt(Math.floor(Math.random() * maxPos))
-    }
-    return character;
-}
-const deviceId = randomString()
-const initCaptcha = (uid?:string) => {
+const message = useMessage()
+const initCaptcha = () => {
   return http.post('https://user.mypikpak.com/v1/shield/captcha/init?client_id=YNxT9w7GMdWvEOKa', {
     action: loginData.value.captcha_token ? 'POST:/v1/auth/signup': "POST:/v1/auth/verification",
     captcha_token: loginData.value.captcha_token || '',
     client_id: "YNxT9w7GMdWvEOKa",
-    device_id: deviceId,
+    device_id: "49713471949bc51442ba9e39296d6872",
     meta: {
       "email": loginData.value.email,
+      // "timestamp": '' + new Date().getTime(),
+      // "captcha_sign": "1.b27c5a1ec2aad71bdae1bdcc1f73aaad",
+      // "client_version": "1.7.0",
+      // "user_id": "",
+      // "package_name": "com.pikcloud.pikpak"
     },
     redirect_uri: "xlaccsdk01://xunlei.com/callback?state\u003dharbor"
   })
@@ -192,7 +190,7 @@ const register = (e:Event) => {
             .then(() => {
               http.post('https://user.mypikpak.com/v1/auth/signup?client_id=YNxT9w7GMdWvEOKa', {
                 captcha_token: loginData.value.captcha_token,
-                client_id: 'YNxT9w7GMdWvEOKa',
+                client_id: "YNxT9w7GMdWvEOKa",
                 client_secret: "dbw2OtmVEeuUvIptb1Coyg",
                 email: loginData.value.email,
                 name: loginData.value.name,
@@ -200,7 +198,7 @@ const register = (e:Event) => {
                 verification_token: res.data.verification_token
               })
                 .then((res:any) => {
-                  vipInvite(res.data)
+                  // vipInvite(res.data.sub)
                   window.localStorage.setItem('pikpakLogin', JSON.stringify(res.data))
                   window.localStorage.removeItem('pikpakLoginData')
                   message.success('注册成功')
@@ -234,18 +232,20 @@ const vipInvite = (uid:string) => {
       "build_sdk_int":"23",
       "channel":"spread",
       "versionCode":"10043",
-      "versionName":"1.7.0",
+      "versionName":"1.7.2",
       "country":"CN"
     },
     "apk_extra": {
-      "invite_code":"946941",
+      "invite_code":"946961",
       "channel":"spread"
     }
   })
+}
 onUnmounted(() => {
   timer.value && clearInterval(timer.value)
 })
 </script>
+
 <style >
   .login-page {
     background-color: #306eff;
@@ -329,4 +329,4 @@ onUnmounted(() => {
       margin-top: 40px;
     }
   }
-</style>
+</style> 
